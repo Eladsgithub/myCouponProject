@@ -302,7 +302,7 @@ public class CProjectApplicationTests {
 			Coupon couponFromDB = companyFacade.getCoupon(coupon.getId());
 			companyFacade.removeCoupon(coupon);
 			couponList = (ArrayList<Coupon>) couponRepo.findAll();
-			Assert.assertNull(couponList);
+			Assert.assertEquals(0, couponList.size() );;
 			
 		}
 	catch (CouponAllreadyExistsException e) {
