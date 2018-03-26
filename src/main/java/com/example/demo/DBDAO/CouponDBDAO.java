@@ -91,12 +91,12 @@ public class CouponDBDAO implements CouponDAO{
 		}
 		else
 		{
-			ConnectionPool.getInstance().returnConenction(dbConnection);}
+			ConnectionPool.getInstance().returnConenction(dbConnection);
 			logger.setAction("removeCoupon failed" + coupon.getId());
 			myLoggerDBDAO.logAction(logger);
 			throw new CouponDoesNotExistsException("coupon does not exist");
 		}
-		
+	}
 	/***
 	 * Updating Coupon 
 	 * 
