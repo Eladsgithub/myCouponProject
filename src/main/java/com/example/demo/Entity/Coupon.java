@@ -1,18 +1,23 @@
 package com.example.demo.Entity;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -20,13 +25,13 @@ import org.hibernate.annotations.OnDeleteAction;
 import com.example.demo.common.CouponType;
 
 @Entity(name = "Coupon")
-public class Coupon {
+@XmlRootElement
+public class Coupon implements Serializable{
 
 	@Id
 	@Column
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
-
 	@Column
 	private String title;
 	@Column
@@ -45,12 +50,16 @@ public class Coupon {
 	@Column
 	private String image;
 
-	@ManyToOne
-	@JoinColumn(name = "Company_id", nullable = false)
-	@OnDelete(action = OnDeleteAction.CASCADE)
-	private Company company;
 	
-	@ManyToMany(mappedBy = "coupons")
+//	@ManyToOne
+//	@JoinColumn(name = "Company_id", nullable = true)
+//	@OnDelete(action = OnDeleteAction.CASCADE)
+//	private Company company;
+//	
+	@ManyToMany(fetch=FetchType.EAGER, cascade = {CascadeType.DETACH , CascadeType.MERGE, CascadeType.REFRESH})
+	@JoinTable(name = "customers_coupons",
+				joinColumns = @JoinColumn(name = "coupon_id"),
+				inverseJoinColumns = @JoinColumn(name = "customer_id"))
 	private List<Customer> customers = new ArrayList<>();
 	
 	/***
@@ -159,14 +168,14 @@ public class Coupon {
 		this.image = image;
 	}
 
-	public void setCompany(Company company) {
-		this.company = company;
-	}
-	
-
-	public Company getCompany() {
-		return company;
-	}
+//	public void setCompany(Company company) {
+//		this.company = company;
+//	}
+//	
+//
+//	public Company getCompany() {
+//		return company;
+//	}
 
 	public void setCustomers(ArrayList<Customer> customers) {
 		this.customers = customers;

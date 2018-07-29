@@ -1,6 +1,7 @@
 package com.example.demo.DBDAO;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.transaction.Transactional;
 
@@ -19,13 +20,36 @@ public interface CustomerRepo extends CrudRepository<Customer, Long>{
 
 	Customer findById(long id);
 
-	boolean findByCustNameAndPassword(String custName, String password);
+	Customer findByCustNameAndPassword(String custName, String password);
+	
+	Customer findByCustName(String custName);
 	
 //	@Query("SELECT coup FROM Coupon coup WHERE coup.id = :c.getId AND coup.id IN (SELECT coup.id FROM coup.customers c WHERE c.id = :customerId)") 
 //	Coupon findCustomerCoupon(@Param("customerId") int customerId, @Param("couponId") int couponId);
 //	
 //	@Query("SELECT coup FROM Customer cust JOIN customer_coupon AS coup WHERE cust.id=:id AND coup.title=:title")
 //	Coupon findCouponInCustomerDB(@Param("id") long customerId, @Param("title") String couponTitle);
+	
+	@Query("SELECT COUP FROM Customer AS CUST INNER JOIN CUST.coupons AS COUP WHERE CUST.id = :cust_id")
+	List<Coupon> getAllPurchasedCouponByCustomer(@Param("cust_id")long cust_id);
+
+	
+	@Query("SELECT COUP FROM Customer AS CUST INNER JOIN CUST.coupons AS COUP WHERE CUST.id = :cust_id AND COUP.type = :type")
+	List<Coupon> getAllPurchasedCouponByType(@Param("cust_id")long cust_id,@Param("type") CouponType type);
+
+	/**
+	 * Get a list of all purchased coupon below a specific price for a specific customer id.
+	 * @param cust_id The customer name.
+	 * @param price The price
+	 * @return List
+	 */
+	@Query("SELECT COUP FROM Customer AS CUST INNER JOIN CUST.coupons AS COUP WHERE CUST.id = :cust_id AND COUP.price <= :price")
+	List<Coupon> getAllPurchasedCouponByPrice(@Param("cust_id")long cust_id,@Param("price")double price);
+	
+	
+	
+	
+	
 	/**
 	 * query to insert values to the joined table customer_coupons
 	 * in order to associate coupon to a specific customer 
@@ -35,7 +59,8 @@ public interface CustomerRepo extends CrudRepository<Customer, Long>{
 	@Transactional
 	@Modifying
 	@Query(value = "INSERT INTO customer_coupons (customers_id, coupons_id) VALUES (:customerId, :couponId)", nativeQuery = true) 
-	void purchaseCustomerCoupon(@Param("customerId") long  customerId, @Param("couponId") long couponId);
+	void purchaseCustomerCoupon(@Param("customerId") long  customerId);
+	//, @Param("couponId") long couponId
 	
 //	@Query ("SELECT coupon FROM COUPON coupon where coupon.id = :id " 
 //			+ "AND coupon.endDate > :date " 

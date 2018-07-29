@@ -31,11 +31,9 @@ public class CustomerDBDAO implements CustomerDAO {
 	private CustomerRepo customerRepo;
 	@Autowired
 	private CouponRepo couponRepo;
-	@Autowired
-	private CompanyFacade companyFacade;
 	
 	//creating a 
-	Customer custLoggedIn = new Customer("Ahron", "3456");
+	Customer custLoggedIn;
 	/**
 	 * customer login
 	 * @param custName
@@ -46,8 +44,10 @@ public class CustomerDBDAO implements CustomerDAO {
 	@Override
 	public boolean login(String custName, String password) throws InterruptedException {
 		DBConnection dbConnection = ConnectionPool.getInstance().getConnection();
-	if(customerRepo.findByCustNameAndPassword(custName, password)){
-		ConnectionPool.getInstance().returnConenction(dbConnection);
+		Customer cust =null;
+		if((cust = customerRepo.findByCustNameAndPassword(custName, password))!=null){
+			ConnectionPool.getInstance().returnConenction(dbConnection);
+			this.custLoggedIn = cust;
 //		logger.setAction("Customer - succesful login");
 //		loggerDBDAO.logAction(logger);
 			return true;
@@ -70,7 +70,7 @@ public class CustomerDBDAO implements CustomerDAO {
 	@Override
 	public void createCustomer(Customer customer) throws CustomerAllreadyExistsException, InterruptedException {
 		DBConnection dbConnection = ConnectionPool.getInstance().getConnection();
-		Customer custFromDB = customerRepo.findById(customer.getId());
+		Customer custFromDB = customerRepo.findByCustName(customer.getCustName());
 			if (custFromDB == null){
 			customerRepo.save(customer);
 			ConnectionPool.getInstance().returnConenction(dbConnection);
@@ -88,11 +88,11 @@ public class CustomerDBDAO implements CustomerDAO {
 	 *  
 	 */
 	@Override
-	public void removeCustomer(Customer customer) throws CustomerDoesNotExistException, InterruptedException {
+	public void removeCustomer(String c) throws CustomerDoesNotExistException, InterruptedException {
 		DBConnection dbConnection = ConnectionPool.getInstance().getConnection();
-		Customer custFromDB = customerRepo.findById(customer.getId());
+		Customer custFromDB = customerRepo.findByCustName(c);
 		if (custFromDB != null){
-		customerRepo.delete(customer);
+		customerRepo.delete(custFromDB);
 		ConnectionPool.getInstance().returnConenction(dbConnection);}
 		else throw new CustomerDoesNotExistException("no such customer exists");{
 			ConnectionPool.getInstance().returnConenction(dbConnection);
@@ -108,9 +108,10 @@ public class CustomerDBDAO implements CustomerDAO {
 	@Override
 	public void updateCustomer(Customer customer) throws InterruptedException, CustomerDoesNotExistException {
 		DBConnection dbConnection = ConnectionPool.getInstance().getConnection();
-		Customer customerFromDB = customerRepo.findById(customer.getId());
+		Customer customerFromDB = customerRepo.findByCustName(customer.getCustName());
 		if (customerFromDB != null){
 		customerFromDB.setPassword(customer.getPassword());
+		customerFromDB.setCoupons(customer.getCoupons());
 		customerRepo.save(customerFromDB);
 		ConnectionPool.getInstance().returnConenction(dbConnection);
 		}
@@ -167,10 +168,11 @@ public class CustomerDBDAO implements CustomerDAO {
 	 * @throws CouponPurchaseunsuccesfulAmountException
 	 * @throws InterruptedException
 	 * @return customer list 
+	 * @throws CustomerDoesNotExistException 
 	 */
-	public void purchaseCoupon(Coupon coupon, Customer custLoggedInId) throws CouponDoesNotExistsException, CouponPurchaseunsuccesfulAmountException, CouponPurchaseunsuccesfulEndDateExceededException, InterruptedException {
+	public void purchaseCoupon(Coupon coupon) throws CouponDoesNotExistsException, CouponPurchaseunsuccesfulAmountException, CouponPurchaseunsuccesfulEndDateExceededException, InterruptedException, CustomerDoesNotExistException {
 		DBConnection dbConnection = ConnectionPool.getInstance().getConnection();
-		Coupon couponTest =  companyFacade.getCoupon(coupon.getId());
+		Coupon couponTest =  couponRepo.findByTitle(coupon.getTitle());
 		ConnectionPool.getInstance().returnConenction(dbConnection);
 			if (couponTest == null)
 			{
@@ -182,25 +184,28 @@ public class CustomerDBDAO implements CustomerDAO {
 		ConnectionPool.getInstance().returnConenction(dbConnection1);
 		if (customerCoupon != null)
 		{
-		throw new CouponPurchaseunsuccesfulAmountException("customer can obtain only one coupon of a kind");
+			throw new CouponPurchaseunsuccesfulAmountException("customer can obtain only one coupon of a kind");
 		}
 		// Checking amount
 		if (couponTest.getAmount() < 1) 
 		{
 			throw new CouponPurchaseunsuccesfulAmountException("no coupons left in stock");
-				}
-				// Checking expired date
-				if (couponTest.getEndDate().before(new Date(System.currentTimeMillis()))) {
-					
-					throw new CouponPurchaseunsuccesfulEndDateExceededException("Coupon expired");
-				}
-					else 
-					{
+		}
+			// Checking expired date
+			if (couponTest.getEndDate().before(new Date(System.currentTimeMillis()))) {
+				
+				throw new CouponPurchaseunsuccesfulEndDateExceededException("Coupon expired");
+			}
+				else 
+				{
 					DBConnection dbConnection2 = ConnectionPool.getInstance().getConnection();
-					customerRepo.purchaseCustomerCoupon(custLoggedInId.getId(), coupon.getId());
-					customerRepo.updateAmount(coupon.getId());
+	//					customerRepo.purchaseCustomerCoupon(coupon.getId());
+					System.out.println("Purchasing!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+					customerRepo.updateAmount(couponTest.getId());
+					custLoggedIn.addCoupon(couponTest);
+					this.updateCustomer(custLoggedIn);
 					ConnectionPool.getInstance().returnConenction(dbConnection2);
-					}
+				}
 	}
 		/**
 		 * generates a list of all purchased coupons
@@ -208,9 +213,9 @@ public class CustomerDBDAO implements CustomerDAO {
 		 * @return custCouponList
 		 * @throws InterruptedException
 		 */
-		public Collection<Coupon> getAllPurchasedCoupons(long customerId) throws InterruptedException {
+		public ArrayList<Coupon> getAllPurchasedCoupons(long customerId) throws InterruptedException {
 			DBConnection dbConnection = ConnectionPool.getInstance().getConnection();
-			Collection<Coupon> custCouponList = couponRepo.findByCustomersId(customerId);
+			ArrayList<Coupon> custCouponList = (ArrayList<Coupon>) customerRepo.getAllPurchasedCouponByCustomer(this.custLoggedIn.getId());
 			ConnectionPool.getInstance().returnConenction(dbConnection);
 			return custCouponList;
 	}
@@ -220,9 +225,9 @@ public class CustomerDBDAO implements CustomerDAO {
 		 * @return custCouponListBtType
 		 * @throws InterruptedException
 		 */
-		public Collection<Coupon> getAllPurchasedCouponsByType(CouponType type, long customerId) throws InterruptedException {
+		public ArrayList<Coupon> getAllPurchasedCouponsByType(CouponType type, long customerId) throws InterruptedException {
 			DBConnection dbConnection = ConnectionPool.getInstance().getConnection();
-			Collection<Coupon> custCouponListBtType = couponRepo.findbytypeAndCustomerId(type, customerId);
+			ArrayList<Coupon> custCouponListBtType = (ArrayList<Coupon>) customerRepo.getAllPurchasedCouponByType(this.custLoggedIn.getId(), type);
 			ConnectionPool.getInstance().returnConenction(dbConnection);
 			return custCouponListBtType;
 		}
@@ -232,9 +237,9 @@ public class CustomerDBDAO implements CustomerDAO {
 		 * @return custCouponListBtPrice
 		 * @throws InterruptedException
 		 */
-		public Collection<Coupon> getAllPurchasedCouponsByPrice(double price, long customerId) throws InterruptedException {
+		public ArrayList<Coupon> getAllPurchasedCouponsByPrice(double price, long customerId) throws InterruptedException {
 			DBConnection dbConnection = ConnectionPool.getInstance().getConnection();
-			Collection<Coupon> custCouponListBtPrice = couponRepo.findbyPriceAndCustomerId(price, customerId);
+			ArrayList<Coupon> custCouponListBtPrice = (ArrayList<Coupon>) customerRepo.getAllPurchasedCouponByPrice(this.custLoggedIn.getId(), price);
 			ConnectionPool.getInstance().returnConenction(dbConnection);			
 			return custCouponListBtPrice;
 		}

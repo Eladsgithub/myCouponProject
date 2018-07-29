@@ -1,6 +1,7 @@
 package com.example.demo.Facades;
 
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import com.example.demo.entry.CouponSystem;
 import com.example.demo.exceptions.CouponDoesNotExistsException;
 import com.example.demo.exceptions.CouponPurchaseunsuccesfulAmountException;
 import com.example.demo.exceptions.CouponPurchaseunsuccesfulEndDateExceededException;
+import com.example.demo.exceptions.CustomerDoesNotExistException;
 /**
  * 
  * @author Elad Cohen
@@ -44,8 +46,7 @@ public class CustomerFacade implements CouponClientFacade{
 	{
 		try {
 			if(customerDBDAO.login(name, password) == true){
-			custLoggedInId = new Customer(name, password);
-			return this;
+				return this;
 			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -61,17 +62,18 @@ public class CustomerFacade implements CouponClientFacade{
 		 * @throws CouponPurchaseunsuccesfulAmountException
 		 * @throws CouponPurchaseunsuccesfulEndDateExceededException
 		 * @throws InterruptedException
+		 * @throws CustomerDoesNotExistException 
 		 */
-		public void purchaseCoupon(Coupon coupon, Customer custLoggedInId) throws CouponDoesNotExistsException, CouponPurchaseunsuccesfulAmountException, CouponPurchaseunsuccesfulEndDateExceededException, InterruptedException
+		public void purchaseCoupon(Coupon coupon) throws CouponDoesNotExistsException, CouponPurchaseunsuccesfulAmountException, CouponPurchaseunsuccesfulEndDateExceededException, InterruptedException, CustomerDoesNotExistException
 		{
-		customerDBDAO.purchaseCoupon(coupon, custLoggedInId);
+			customerDBDAO.purchaseCoupon(coupon);
 		}
 		/**
 		 * getAllPurchasedCoupons call on customerDBDAO to getAllPurchasedCoupons  
 		 * @return list of coupons
 		 * @throws InterruptedException
 		 */
-		public Collection<Coupon> getAllPurchasedCoupons() throws InterruptedException{
+		public ArrayList<Coupon> getAllPurchasedCoupons() throws InterruptedException{
 			return customerDBDAO.getAllPurchasedCoupons(custLoggedInId.getId());
 			 
 		}
@@ -80,7 +82,7 @@ public class CustomerFacade implements CouponClientFacade{
 		 * @return list of coupons by type
 		 * @throws InterruptedException
 		 */
-		public Collection<Coupon> getAllPurchasedCouponsByType(CouponType type) throws InterruptedException{
+		public ArrayList<Coupon> getAllPurchasedCouponsByType(CouponType type) throws InterruptedException{
 			return customerDBDAO.getAllPurchasedCouponsByType(type, custLoggedInId.getId());
 			 
 		}
@@ -89,7 +91,7 @@ public class CustomerFacade implements CouponClientFacade{
 		 * @return list of coupons by price
 		 * @throws InterruptedException
 		 */
-		public Collection<Coupon> getAllPurchasedCouponsByPrice(double price) throws InterruptedException{
+		public ArrayList<Coupon> getAllPurchasedCouponsByPrice(double price) throws InterruptedException{
 			return customerDBDAO.getAllPurchasedCouponsByPrice(price, custLoggedInId.getId());
 			
 		}

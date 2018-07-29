@@ -23,7 +23,7 @@ public interface CouponDAO {
 	 * @throws CouponAllreadyExistsException
 	 * @throws InterruptedException 
 	 */
-	void createCoupon(Coupon coupon, Company compLoggedInId) throws CouponAllreadyExistsException , CompanyNotExistException, InterruptedException;
+	void createCoupon(Coupon coupon) throws CouponAllreadyExistsException , CompanyNotExistException, InterruptedException;
 	
 	/***
 	 * Removing Coupon by id

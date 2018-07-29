@@ -97,8 +97,8 @@ public class AdminFacade implements CouponClientFacade{
 	 * @throws InterruptedException
 	 */
 	
-	public Company getCompany(long id) throws CompanyNotExistException, InterruptedException{
-		return companyDBDAO.getCompany(id);
+	public Company getCompany(String compName) throws CompanyNotExistException, InterruptedException{
+		return companyDBDAO.getCompany(compName);
 	}
 	/**
 	 * gets all companies calls gets all companies at companyDBDAO
@@ -122,9 +122,9 @@ public class AdminFacade implements CouponClientFacade{
 	 * @throws CustomerDoesNotExistException
 	 * @throws InterruptedException
 	 */
-//	public void removeCustomer(Customer customer) throws CustomerDoesNotExistException, InterruptedException{
-//		customerDBDAO.removeCustomer(customer);
-//	}
+	public void removeCustomer(String c) throws CustomerDoesNotExistException, InterruptedException{
+		customerDBDAO.removeCustomer(c);
+	}
 	/**
 	 * update Customer calls updateCustomer at customerDBDAO
 	 * @throws CustomerDoesNotExistException

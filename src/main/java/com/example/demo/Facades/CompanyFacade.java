@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.example.demo.DBDAO.CompanyDBDAO;
@@ -15,7 +16,6 @@ import com.example.demo.Entity.Coupon;
 import com.example.demo.common.ClientType;
 import com.example.demo.common.CouponType;
 import com.example.demo.entry.CouponSystem;
-import com.example.demo.exceptions.CompanyAllreadyExistsException;
 import com.example.demo.exceptions.CompanyNotExistException;
 import com.example.demo.exceptions.CouponAllreadyExistsException;
 import com.example.demo.exceptions.CouponDoesNotExistsException;
@@ -28,7 +28,9 @@ import com.example.demo.exceptions.CouponsNullListException;
  * Details all of the methods Company can use
  *
  */
+
 @Component
+@Scope("prototype")
 public class CompanyFacade implements CouponClientFacade{
 
 	@Autowired
@@ -36,18 +38,19 @@ public class CompanyFacade implements CouponClientFacade{
 	@Autowired
 	CompanyDBDAO companyDBDAO;
 	@Autowired
-	CouponSystem couponSystem;
-	@Autowired
 	CompanyRepo companyRepo;
 //	variables and methods made for fake login and create coupon
-	private Company compLoggedIn = new Company();
+	//private Company compLoggedIn = new Company();
+	private Company compLoggedIn;
 	public Date startDate = new Date();
 	public Date endDate = new Date();
+	public long LoggedInId;
+	
 	
 	public Company getCompLoggedIn() {
 		return compLoggedIn;
 	}
-	public long compLoggedInId = compLoggedIn.getId();
+	
 
 	/**
 	 * company login if successful sends a facade
@@ -61,6 +64,7 @@ public class CompanyFacade implements CouponClientFacade{
 		try {
 			if(companyDBDAO.login(compName, password) == true){
 				compLoggedIn = companyRepo.findByCompName(compName);
+				 LoggedInId = compLoggedIn.getId();
 					return this;
 			}
 			else System.out.println("login failed please try again");
@@ -79,10 +83,11 @@ public class CompanyFacade implements CouponClientFacade{
 	 * @throws CompanyNotExistException
 	 * @throws InterruptedException
 	 */
-		public void createCoupon(Coupon coupon, Company compLoggedInId) throws CouponAllreadyExistsException, CompanyNotExistException, InterruptedException
+		public void createCoupon(Coupon coupon) throws CouponAllreadyExistsException, CompanyNotExistException, InterruptedException
 		{
-			couponDBDAO.createCoupon(coupon, compLoggedInId);
-
+			compLoggedIn.addCoupon(coupon);
+//			couponDBDAO.createCoupon(coupon);
+			companyDBDAO.updateCompany(compLoggedIn);
 		}
 		/**
 		 * removeCoupon calls removeCoupon at couponDBDAO 
@@ -126,7 +131,8 @@ public class CompanyFacade implements CouponClientFacade{
 			 */
 		 public ArrayList<Coupon> getAllCoupons() throws CouponsNullListException, InterruptedException
 		 {
-			 return couponDBDAO.getAllCoupons();
+			 return companyDBDAO.getAllCoupons(this.LoggedInId);
+			// return couponDBDAO.getAllCoupons();
 		 }
 		 /**
 			 * getCouponsByType calls getCouponsByType at couponDBDAO 
@@ -135,9 +141,9 @@ public class CompanyFacade implements CouponClientFacade{
 			 * @throws InterruptedException
 			 * @return list of coupons by type
 			 */
-		 public Collection<Coupon> getCouponsByType(CouponType couponType, long compLoggedInId) throws CouponsNullListException, InterruptedException{
-			 
-			 return couponDBDAO.getCouponByType(couponType, compLoggedInId);
+		 public Collection<Coupon> getCouponsByType(CouponType couponType) throws CouponsNullListException, InterruptedException{
+			 return companyDBDAO.getAllCouponsByType(couponType, this.LoggedInId);
+			 //return couponDBDAO.getCouponByType(couponType,this.LoggedInId);
 		 }
 		 /**
 			 * getCouponsByPrice calls getCouponsByType at couponDBDAO 
@@ -146,9 +152,9 @@ public class CompanyFacade implements CouponClientFacade{
 			 * @throws InterruptedException
 			 * @return list of coupons by price
 			 */
-		 public Collection<Coupon> getCouponsByPrice(double price, long compLoggedInId) throws InterruptedException{
-			 
-			 return couponDBDAO.getCouponByPrice(price, compLoggedInId);
+		 public Collection<Coupon> getCouponsByPrice(double price) throws InterruptedException{
+			 return companyDBDAO.getAllCouponsByPrice(price, this.LoggedInId);
+			 //return couponDBDAO.getCouponByPrice(price);
 		 }
 		 /**
 			 * getCouponsByPrice calls getCouponsByType at couponDBDAO 
@@ -156,10 +162,12 @@ public class CompanyFacade implements CouponClientFacade{
 			 * @throws InterruptedException
 			 * @return list of coupons by price
 			 */
-		 public ArrayList<Coupon> getCouponsByDate(Date endDate, long compLoggedInId) throws InterruptedException{
-			 
-			 return couponDBDAO.getCouponByDate(endDate, compLoggedInId);
+		 public ArrayList<Coupon> getCouponsByDate(Date endDate) throws InterruptedException{
+			 return companyDBDAO.getAllCouponsByDate(endDate, this.LoggedInId);
+			// return couponDBDAO.getCouponByDate(endDate);
 		 }
+		 
+		 
 		 
 }
 

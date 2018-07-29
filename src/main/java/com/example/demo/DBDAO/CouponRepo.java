@@ -27,7 +27,7 @@ public interface CouponRepo extends CrudRepository<Coupon, Long>{
 	ArrayList<Coupon> findByType(CouponType couponType);
 	
 //	compiles a list of coupons by type and company id 
-	ArrayList<Coupon> findByTypeAndCompany_id(CouponType couponType, long compLoggedInId);
+//	ArrayList<Coupon> findByTypeAndCompany_id(CouponType couponType, long compLoggedInId);
 
 	/**
 	 * query to remove coupon after deletion
@@ -36,9 +36,12 @@ public interface CouponRepo extends CrudRepository<Coupon, Long>{
 	 */
 	@Transactional
 	@Modifying
-	@Query("DELETE FROM Coupon coup WHERE coup.id = :couponId AND coup.company.id = :companyId")
-	void removeCoupon(@Param("couponId") long couponId, @Param("companyId") long companyId);
-		
+	@Query("DELETE FROM Coupon coup WHERE coup.id = :couponId")
+	void removeCoupon(@Param("couponId") long couponId);
+	//AND coup.company.id = :companyId"
+	//, @Param("companyId") long companyId
+	
+	
 	/**
 	 * query to remove coupon after expired - used by the daily thread
 	 * @param couponId
@@ -51,7 +54,7 @@ public interface CouponRepo extends CrudRepository<Coupon, Long>{
 	
 	
 //	compiles a list of coupons by customer id 
-	Collection<Coupon> findByCustomersId(long customerId);
+	ArrayList<Coupon> findByCustomersId(long customerId);
 	
 	/**
 	 * query that compiles a list coupons which price is lower then given price from Coupon table 
@@ -62,8 +65,11 @@ public interface CouponRepo extends CrudRepository<Coupon, Long>{
 	 */
 	@Modifying		
 	@Transactional
-	@Query("SELECT c FROM Coupon c WHERE c.price < :price AND company_id= :companyId")
-	Collection<Coupon> findWherePriceLowerThan(@Param("price")double price,@Param ("companyId") long compLoggedInId);
+	@Query("SELECT c FROM Coupon c WHERE c.price < :price")
+	Collection<Coupon> findWherePriceLowerThan(@Param("price")double price);
+//	 AND company_id= :companyId
+	//,@Param ("companyId") long compLoggedInId
+	
 	
 	/**
 	 * query that compiles a list coupons which endDate is earlier then given endDate from Coupon table 
@@ -72,8 +78,10 @@ public interface CouponRepo extends CrudRepository<Coupon, Long>{
 	 * @param comapnyId
 	 * @return
 	 */
-	@Query("SELECT coup FROM Coupon coup WHERE coup.endDate < :endDate AND company_id= :companyId")
-	Collection<Coupon> findWhereEndDateLowerThan(@Param("endDate")Date endDate ,@Param ("companyId") long comapnyId);
+	@Query("SELECT coup FROM Coupon coup WHERE coup.endDate < :endDate")
+	Collection<Coupon> findWhereEndDateLowerThan(@Param("endDate")Date endDate);
+	// AND company_id= :companyId
+	// ,@Param ("companyId") long comapnyId
 
 //	@Query("SELECT cp FROM CUSTOMER cust JOIN cust.coupons AS cp WHERE cust.id=:id AND cp.type=:couponType")
 //	Collection<Coupon> findAllPurchasedCouponsType(@Param("id") long custId, @Param("couponType") CouponType type);

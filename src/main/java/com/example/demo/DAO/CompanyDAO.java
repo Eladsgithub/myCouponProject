@@ -50,7 +50,7 @@ public interface CompanyDAO {
 		 * @throws CompanyNotExistException
 		 * @throws InterruptedException 
 		 */
-		Company getCompany(long id)throws CompanyNotExistException, InterruptedException;
+		Company getCompany(String compName)throws CompanyNotExistException, InterruptedException;
 		
 		/***
 		 * Get all Companies
@@ -78,8 +78,6 @@ public interface CompanyDAO {
 //		 */
 		boolean login(String compnayname, String password) throws InterruptedException;
 
-		
-		
 		
 		
 		

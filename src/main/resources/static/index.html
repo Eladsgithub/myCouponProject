@@ -1,0 +1,21 @@
+<html>
+
+	<head>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+	</head>
+	
+	<body>
+	
+			<form action="http://localhost:8080/login" method="post">
+				<label>Name:<input name="username" type="text" placeholder="Enter you username"></input></label><br>
+				<label>Password:<input name="password" type="password" placeholder="Enter you password"></input></label><br>
+				<label>Choose user type:</label>
+				<select name="type">
+				  <option value="CUSTOMER">Customer</option>
+				  <option value="COMPANY">Company</option>
+				  <option value="ADMIN">Admin</option>
+				</select>
+				<button type="submit">Click</button>
+			</form>
+	</body>
+</html>

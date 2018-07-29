@@ -1,5 +1,6 @@
 package com.example.demo.Entity;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.JoinColumn;
@@ -12,9 +13,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.xml.bind.annotation.XmlRootElement;
 
 @Entity(name = "Customer")
-public class Customer {
+@XmlRootElement
+public class Customer implements Serializable{
 
 	@Id   
 	@Column
@@ -27,7 +30,10 @@ public class Customer {
 	@Column
 	private String password;
 	
-	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@ManyToMany(fetch=FetchType.EAGER, cascade = {CascadeType.DETACH , CascadeType.MERGE, CascadeType.REFRESH})
+	@JoinTable(name = "customers_coupons",
+				joinColumns = @JoinColumn(name = "customer_id"),
+				inverseJoinColumns = @JoinColumn(name = "coupon_id"))
 	private List<Coupon> coupons = new ArrayList<>();
 	
 	/***
@@ -81,6 +87,10 @@ public class Customer {
 
 	public void setCoupons(List<Coupon> coupons) {
 		this.coupons = coupons;
+	}
+	
+	public void addCoupon(Coupon coupon){
+		this.coupons.add(coupon);
 	}
 
 	// toString

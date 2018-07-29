@@ -1,5 +1,6 @@
 package com.example.demo.Entity;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,10 +12,14 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+import javax.xml.bind.annotation.XmlRootElement;
+
 
 @Entity(name = "Company")
-public class Company {
+@XmlRootElement
+public class Company implements Serializable{
 	
 	@Id
 	@Column
@@ -28,7 +33,9 @@ public class Company {
 	@Column
 	private String email;
 	
-	@OneToMany(mappedBy = "company", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+//	@OneToMany(mappedBy = "company", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@OneToMany (fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@JoinColumn (name = "Company_id")
 	private List<Coupon> coupons = new ArrayList<>();
 	
 	/***
@@ -90,6 +97,14 @@ public class Company {
 
 	public void setCoupons(List<Coupon> coupons) {
 		this.coupons = coupons;
+	}
+	
+	public void addCoupon(Coupon coupon){
+		this.coupons.add(coupon);
+	}
+
+	public List<Coupon> getCoupons() {
+		return coupons;
 	}
 
 	// toString

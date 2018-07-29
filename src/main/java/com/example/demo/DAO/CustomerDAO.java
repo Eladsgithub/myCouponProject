@@ -28,7 +28,7 @@ public interface CustomerDAO {
 	 * @throws InterruptedException 
 	 * @throws CustomerDoesNotExistsException
 	 */
-	void removeCustomer(Customer customer) throws CustomerDoesNotExistException, InterruptedException;
+	void removeCustomer(String c) throws CustomerDoesNotExistException, InterruptedException;
 
 	/**
 	 * Update Customer set only password by ID

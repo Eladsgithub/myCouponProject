@@ -52,11 +52,11 @@ public class CouponDBDAO implements CouponDAO{
 	 * @throws CouponExistException
 	 */
 	@Override
-	public void createCoupon(Coupon coupon, Company compLoggedInId) 
+	public void createCoupon(Coupon coupon) 
 			throws CouponAllreadyExistsException, InterruptedException {
 		DBConnection dbConnection = ConnectionPool.getInstance().getConnection();
-		Coupon coupFromDB = couponRepo.findById(coupon.getId());
-		coupon.setCompany(compLoggedInId);
+		Coupon coupFromDB = couponRepo.findByTitle(coupon.getTitle());
+//		coupon.setCompany(compLoggedInId);
 		if (coupFromDB == null){
 			couponRepo.save(coupon);
 			logger.setAction("createCoupon succeeded");
@@ -65,7 +65,7 @@ public class CouponDBDAO implements CouponDAO{
 		}
 		else {
 			ConnectionPool.getInstance().returnConenction(dbConnection);
-			logger.setAction("createCoupon failed");
+			logger.setAction("create Coupon failed");
 			myLoggerDBDAO.logAction(logger);
 			throw new CouponAllreadyExistsException("coupon Already exists");
 
@@ -82,9 +82,10 @@ public class CouponDBDAO implements CouponDAO{
 	public void removeCoupon(Coupon coupon) 
 			throws CouponDoesNotExistsException, InterruptedException {
 		DBConnection dbConnection = ConnectionPool.getInstance().getConnection();
-		Coupon coupFromDB = couponRepo.findById(coupon.getId());
+		Coupon coupFromDB = couponRepo.findByTitle(coupon.getTitle());
 		if (coupFromDB != null){
-			couponRepo.removeCoupon(coupon.getId(), coupon.getCompany().getId());
+			couponRepo.removeCoupon(coupFromDB.getId());
+			//, coupon.getCompany().getId()
 			ConnectionPool.getInstance().returnConenction(dbConnection);
 			logger.setAction("removeCoupon succeeded" + coupon.getId());
 			myLoggerDBDAO.logAction(logger);
@@ -109,13 +110,13 @@ public class CouponDBDAO implements CouponDAO{
 	public void updateCoupon(Coupon coupon)
 			throws CouponDoesNotExistsException, InterruptedException {
 		DBConnection dbConnection = ConnectionPool.getInstance().getConnection();
-		Coupon coupFromDB = couponRepo.findById(coupon.getId());
+		Coupon coupFromDB = couponRepo.findByTitle(coupon.getTitle());
 		if(coupFromDB!=null)
 		{
 		coupFromDB.setPrice(coupon.getPrice());
 		coupFromDB.setEndDate(coupon.getEndDate());
 		couponRepo.save(coupFromDB);
-		logger.setAction("updateCoupon succeeded coupon id# " + coupon.getId());
+		logger.setAction("updateCoupon succeeded coupon named : " + coupon.getTitle() + "was updated ");
 		myLoggerDBDAO.logAction(logger);
 		ConnectionPool.getInstance().returnConenction(dbConnection);
 		
@@ -171,10 +172,11 @@ public class CouponDBDAO implements CouponDAO{
 	@Override
 	public ArrayList<Coupon> getCouponByType(CouponType couponType, long compLoggedInId) throws  InterruptedException {
 		DBConnection dbConnection = ConnectionPool.getInstance().getConnection();
-		ArrayList<Coupon> couponListByType = couponRepo.findByTypeAndCompany_id(couponType, compLoggedInId);
+		ArrayList<Coupon> couponListByType = couponRepo.findByType(couponType);
 		ConnectionPool.getInstance().returnConenction(dbConnection);
 		logger.setAction("get all Coupons by type " + couponType);
 		myLoggerDBDAO.logAction(logger);
+//		return null;
 		return couponListByType;
 	}
 	/***
@@ -183,9 +185,9 @@ public class CouponDBDAO implements CouponDAO{
 	 * @throws InterruptedException
 	 * @return coupon list by type 
 	 */
-	public ArrayList<Coupon> getCouponByDate(Date endDate, long compLoggedInId) throws InterruptedException {
+	public ArrayList<Coupon> getCouponByDate(Date endDate) throws InterruptedException {
 		DBConnection dbConnection = ConnectionPool.getInstance().getConnection();
-		ArrayList<Coupon> couponListByDate = (ArrayList<Coupon>) couponRepo.findWhereEndDateLowerThan(endDate, compLoggedInId);
+		ArrayList<Coupon> couponListByDate = (ArrayList<Coupon>) couponRepo.findWhereEndDateLowerThan(endDate);
 		ConnectionPool.getInstance().returnConenction(dbConnection);
 		logger.setAction("get all Coupons by date " + endDate);
 		myLoggerDBDAO.logAction(logger);
@@ -198,9 +200,9 @@ public class CouponDBDAO implements CouponDAO{
 	 * @throws InterruptedException
 	 * @return coupon list by price 
 	 */
-	public ArrayList<Coupon> getCouponByPrice(double price, long compLoggedInId) throws InterruptedException {
+	public ArrayList<Coupon> getCouponByPrice(double price) throws InterruptedException {
 		DBConnection dbConnection = ConnectionPool.getInstance().getConnection();
-		ArrayList<Coupon> couponListByPrice = (ArrayList<Coupon>) couponRepo.findWherePriceLowerThan(price, compLoggedInId);
+		ArrayList<Coupon> couponListByPrice = (ArrayList<Coupon>) couponRepo.findWherePriceLowerThan(price);
 		ConnectionPool.getInstance().returnConenction(dbConnection);
 		logger.setAction("get all Coupons by price " + price);
 		myLoggerDBDAO.logAction(logger);
