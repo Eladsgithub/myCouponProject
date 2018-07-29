@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.DAO.CustomerDAO;
@@ -25,6 +26,7 @@ import com.example.demo.exceptions.CustomerDoesNotExistException;
  *
  */
 @Service
+@Scope("prototype")
 public class CustomerDBDAO implements CustomerDAO {
 
 	@Autowired

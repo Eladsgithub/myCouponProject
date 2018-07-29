@@ -36,8 +36,8 @@ public class CompanyWS {
 
 	private CompanyFacade getFacade(HttpServletRequest req)
 	{
-		
-		return (CompanyFacade) cs.login("TEVA", "1234", ClientType.COMPANY);
+		CompanyFacade cf = (CompanyFacade) req.getSession().getAttribute("companyFacade");
+		return cf;
 	}
 		
 	@RequestMapping(value = "/CompanyWS/createCoupon", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)

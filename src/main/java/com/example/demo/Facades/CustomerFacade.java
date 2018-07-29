@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.example.demo.DBDAO.CustomerDBDAO;
@@ -25,6 +26,7 @@ import com.example.demo.exceptions.CustomerDoesNotExistException;
  *
  */
 @Component
+@Scope("prototype")
 public class CustomerFacade implements CouponClientFacade{
 
 	@Autowired

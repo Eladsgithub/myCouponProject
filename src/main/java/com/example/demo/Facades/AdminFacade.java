@@ -3,6 +3,7 @@ package com.example.demo.Facades;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.example.demo.DBDAO.CompanyDBDAO;
@@ -17,8 +18,6 @@ import com.example.demo.exceptions.CompanyAllreadyExistsException;
 import com.example.demo.exceptions.CompanyNotExistException;
 import com.example.demo.exceptions.CustomerAllreadyExistsException;
 import com.example.demo.exceptions.CustomerDoesNotExistException;
-
-import ch.qos.logback.core.net.SyslogOutputStream;
 
 /**
  * 

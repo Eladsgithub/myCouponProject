@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.DBDAO.CouponRepo;
 import com.example.demo.Entity.Coupon;
+import com.example.demo.Facades.CompanyFacade;
 import com.example.demo.Facades.CustomerFacade;
 import com.example.demo.common.ClientType;
 import com.example.demo.common.CouponType;
@@ -34,7 +35,8 @@ public class CustomerWS {
 	
 	private CustomerFacade getFacade(HttpServletRequest req)
 	{
-		return (CustomerFacade) cs.login("moshe", "qqqq", ClientType.CUSTOMER);
+		CustomerFacade cf = (CustomerFacade) req.getSession().getAttribute("customerFacade");
+		return cf;
 	}
 	
 	@RequestMapping(value = "/CustomerWS/purchaseCoupon/{c}", method = RequestMethod.GET)
